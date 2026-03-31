@@ -1,0 +1,52 @@
+{
+  "DISEASE:糖尿病": {
+    "name": "糖尿病",
+    "id": "4:fffd4fe9-ac9d-407d-bd62-1e5641342c1c:19485",
+    "similarity": 1.0
+  },
+  "DISEASE:高血压": {
+    "name": "高血压",
+    "id": "4:fffd4fe9-ac9d-407d-bd62-1e5641342c1c:23570",
+    "similarity": 1.0
+  },
+  "DISEASE:心脏病": {
+    "name": "心脏病",
+    "id": "4:fffd4fe9-ac9d-407d-bd62-1e5641342c1c:22692",
+    "similarity": 1.0
+  },
+  "SYMPTOM:头痛": {
+    "name": "头痛",
+    "id": "4:fffd4fe9-ac9d-407d-bd62-1e5641342c1c:26158",
+    "similarity": 1.0
+  },
+  "SYMPTOM:发烧": {
+    "name": "发烧",
+    "id": "4:fffd4fe9-ac9d-407d-bd62-1e5641342c1c:29789",
+    "similarity": 1.0
+  },
+  "DISEASE:感冒": {
+    "name": "感冒",
+    "id": "4:fffd4fe9-ac9d-407d-bd62-1e5641342c1c:18815",
+    "similarity": 1.0
+  },
+  "SYMPTOM:胃痛": {
+    "name": "胃痛",
+    "id": "4:fffd4fe9-ac9d-407d-bd62-1e5641342c1c:30178",
+    "similarity": 1.0
+  },
+  "CHECK:CT检查": {
+    "name": "CT检查",
+    "id": "4:fffd4fe9-ac9d-407d-bd62-1e5641342c1c:6716",
+    "similarity": 1.0
+  },
+  "DISEASE:肺癌": {
+    "name": "肺癌",
+    "id": "4:fffd4fe9-ac9d-407d-bd62-1e5641342c1c:23477",
+    "similarity": 1.0
+  },
+  "DRUG:阿司匹林": {
+    "name": "阿司匹林片",
+    "id": "4:fffd4fe9-ac9d-407d-bd62-1e5641342c1c:31096",
+    "similarity": 0.8888888888888888
+  }
+}

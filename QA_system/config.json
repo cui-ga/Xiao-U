@@ -1,0 +1,24 @@
+{
+  "neo4j_uri": "bolt://127.0.0.1:7687",
+  "neo4j_user": "neo4j",
+  "neo4j_password": "12345678",
+  "neo4j_database": "neo4j",
+  "enable_cache": true,
+  "enable_debug": true,
+  "timeout": 30,
+  "max_entities": 10,
+  "enable_fallback": true,
+  "log_level": "INFO",
+  "intent_model_path": "Intention_recognition/saved_models/best_model",
+  "intent_top_k": 1,
+  "intent_min_confidence": 0.5,
+  "dialogue": {
+    "enabled": true,
+    "max_history_turns": 5,
+    "session_timeout_seconds": 1800,
+    "enable_coreference_resolution": true,
+    "enable_query_rewrite": true,
+    "core_entity_types": ["DISEASE", "疾病", "SYMPTOM", "症状", "DRUG", "药品"],
+    "default_session_id": "default_user"
+  }
+}

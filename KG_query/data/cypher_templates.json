@@ -1,0 +1,254 @@
+{
+  "临床表现(病症表现)": {
+    "description": "查询疾病的症状表现",
+    "cypher": "MATCH (d:疾病 {name: $entity_name}) RETURN d.name AS 疾病名称, d.symptom AS 症状",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "预防": {
+    "description": "查询疾病预防措施",
+    "cypher": "MATCH (d:疾病 {name: $entity_name}) RETURN d.name AS 疾病名称, d.prevent AS 预防措施",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "治疗方法": {
+    "description": "查询疾病治疗方法",
+    "cypher": "MATCH (d:疾病 {name: $entity_name}) RETURN d.name AS 疾病名称, d.cure_way AS 治疗方法",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "所属科室": {
+    "description": "查询疾病治疗科室",
+    "cypher": "MATCH (d:疾病 {name: $entity_name}) RETURN d.name AS 疾病名称, d.cure_department AS 治疗科室",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "化验/体检方案": {
+    "description": "查询疾病需要做的检查",
+    "cypher": "MATCH (d:疾病 {name: $entity_name})-[r:need_check]->(check:检查) RETURN d.name AS 疾病名称, collect(check.name) AS 相关检查",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "定义": {
+    "description": "查询疾病描述",
+    "cypher": "MATCH (d:疾病 {name: $entity_name}) RETURN d.name AS 疾病名称, d.desc AS 疾病描述",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "传染性": {
+    "description": "查询疾病传染性",
+    "cypher": "MATCH (d:疾病 {name: $entity_name}) RETURN d.name AS 疾病名称, d.infectious AS 传染性",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "治愈率": {
+    "description": "查询疾病治愈率",
+    "cypher": "MATCH (d:疾病 {name: $entity_name}) RETURN d.name AS 疾病名称, d.cured_prob AS 治愈率",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "禁忌": {
+    "description": "查询疾病不能吃的食物",
+    "cypher": "MATCH (d:疾病 {name: $entity_name})-[r:not_eat]->(food:食物) RETURN d.name AS 疾病名称, collect(food.name) AS 忌食食物",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "治疗时间": {
+    "description": "查询疾病治疗周期",
+    "cypher": "MATCH (d:疾病 {name: $entity_name}) RETURN d.name AS 疾病名称, d.cure_lasttime AS 治疗周期",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "病因": {
+    "description": "查询疾病病因",
+    "cypher": "MATCH (d:疾病 {name: $entity_name}) RETURN d.name AS 疾病名称, d.cause AS 病因",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "相关病症": {
+    "description": "查询疾病并发症",
+    "cypher": "MATCH (d:疾病 {name: $entity_name})-[r:acompany_with]->(comp:疾病) RETURN d.name AS 疾病名称, collect(comp.name) AS 并发症",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "建议食物": {
+    "description": "查询疾病建议吃的食物",
+    "cypher": "MATCH (d:疾病 {name: $entity_name})-[r:do_eat]->(food:食物) RETURN d.name AS 疾病名称, collect(food.name) AS 宜食食物",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "疾病基本信息": {
+    "description": "查询疾病的基本信息",
+    "cypher": "MATCH (d:疾病 {name: $entity_name}) RETURN d.name AS 疾病名称, d.symptom AS 症状, d.cause AS 病因, d.cure_way AS 治疗方法, d.prevent AS 预防措施, d.cure_department AS 治疗科室, d.desc AS 疾病描述, d.cure_lasttime AS 治疗周期, d.cured_prob AS 治愈率, d.easy_get AS 易感人群, d.get_prob AS 发病率",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "症状列表": {
+    "description": "查询疾病的症状列表",
+    "cypher": "MATCH (d:疾病 {name: $entity_name}) RETURN d.name AS 疾病名称, d.symptom AS 症状列表",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "症状相关疾病": {
+    "description": "查询症状相关疾病",
+    "cypher": "MATCH (d:疾病)-[:has_symptom]->(s:症状 {name: $entity_name}) RETURN s.name AS 症状名称, collect(d.name) AS 相关疾病",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "推荐药品": {
+    "description": "查询疾病推荐药品",
+    "cypher": "MATCH (d:疾病 {name: $entity_name})-[r:recommand_drug]->(drug:药品) RETURN d.name AS 疾病名称, collect(drug.name) AS 推荐药品",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "药品信息": {
+    "description": "查询药品基本信息",
+    "cypher": "MATCH (d:药品 {name: $entity_name}) RETURN d.name AS 药品名称",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "药品生产厂家": {
+    "description": "查询药品生产厂家",
+    "cypher": "MATCH (d:药品 {name: $entity_name})-[r:production]->(company:药企) RETURN d.name AS 药品名称, company.name AS 生产厂家",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "食物信息": {
+    "description": "查询食物基本信息",
+    "cypher": "MATCH (f:食物 {name: $entity_name}) RETURN f.name AS 食物名称",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "菜谱信息": {
+    "description": "查询菜谱基本信息",
+    "cypher": "MATCH (r:菜谱 {name: $entity_name}) RETURN r.name AS 菜谱名称",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "检查信息": {
+    "description": "查询检查项目基本信息",
+    "cypher": "MATCH (c:检查 {name: $entity_name}) RETURN c.name AS 检查项目",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "科室信息": {
+    "description": "查询科室基本信息",
+    "cypher": "MATCH (d:科室 {name: $entity_name}) RETURN d.name AS 科室名称",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "药企信息": {
+    "description": "查询药企基本信息",
+    "cypher": "MATCH (c:药企 {name: $entity_name}) RETURN c.name AS 药企名称",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "症状信息": {
+    "description": "查询症状基本信息",
+    "cypher": "MATCH (s:症状 {name: $entity_name}) RETURN s.name AS 症状名称",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "疾病模糊查询": {
+    "description": "模糊查询疾病名称",
+    "cypher": "MATCH (d:疾病) WHERE d.name CONTAINS $keyword RETURN d.name AS 疾病名称, d.symptom AS 症状 LIMIT 20",
+    "parameters": ["keyword"],
+    "result_format": "list"
+  },
+  "症状模糊查询": {
+    "description": "模糊查询症状名称",
+    "cypher": "MATCH (s:症状) WHERE s.name CONTAINS $keyword RETURN s.name AS 症状名称 LIMIT 20",
+    "parameters": ["keyword"],
+    "result_format": "list"
+  },
+  "药品模糊查询": {
+    "description": "模糊查询药品名称",
+    "cypher": "MATCH (d:药品) WHERE d.name CONTAINS $keyword RETURN d.name AS 药品名称 LIMIT 20",
+    "parameters": ["keyword"],
+    "result_format": "list"
+  },
+  "疾病统计": {
+    "description": "统计疾病数量",
+    "cypher": "MATCH (d:疾病) RETURN count(d) AS 疾病总数",
+    "parameters": [],
+    "result_format": "single"
+  },
+  "症状统计": {
+    "description": "统计症状数量",
+    "cypher": "MATCH (s:症状) RETURN count(s) AS 症状总数",
+    "parameters": [],
+    "result_format": "single"
+  },
+  "药品统计": {
+    "description": "统计药品数量",
+    "cypher": "MATCH (d:药品) RETURN count(d) AS 药品总数",
+    "parameters": [],
+    "result_format": "single"
+  },
+  "疾病列表": {
+    "description": "获取疾病列表",
+    "cypher": "MATCH (d:疾病) RETURN d.name AS 疾病名称, d.symptom AS 症状 LIMIT 50",
+    "parameters": [],
+    "result_format": "list"
+  },
+  "症状疾病关联": {
+    "description": "通过症状查询相关疾病",
+    "cypher": "MATCH (s:症状 {name: $symptom_name})<-[:has_symptom]-(d:疾病) RETURN s.name AS 症状, d.name AS 相关疾病",
+    "parameters": ["symptom_name"],
+    "result_format": "list"
+  },
+  "疾病症状关联": {
+    "description": "通过疾病查询相关症状",
+    "cypher": "MATCH (d:疾病 {name: $disease_name})-[:has_symptom]->(s:症状) RETURN d.name AS 疾病, s.name AS 症状",
+    "parameters": ["disease_name"],
+    "result_format": "list"
+  },
+  "通用实体查询": {
+    "description": "查询任意实体的基本信息",
+    "cypher": "MATCH (n {name: $entity_name}) RETURN labels(n)[0] AS 实体类型, n.name AS 名称, properties(n) AS 属性",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "多实体查询": {
+    "description": "查询多个实体的基本信息",
+    "cypher": "MATCH (n) WHERE n.name IN $entity_names RETURN labels(n)[0] AS 实体类型, n.name AS 名称, properties(n) AS 属性",
+    "parameters": ["entity_names"],
+    "result_format": "list"
+  },
+  "关系查询": {
+    "description": "查询实体间的关系",
+    "cypher": "MATCH (start {name: $start_name})-[r]->(end {name: $end_name}) RETURN start.name AS 起始节点, type(r) AS 关系类型, end.name AS 结束节点",
+    "parameters": ["start_name", "end_name"],
+    "result_format": "list"
+  },
+  "关系扩展查询": {
+    "description": "查询实体的所有关系",
+    "cypher": "MATCH (n {name: $entity_name})-[r]->(related) RETURN type(r) AS 关系类型, labels(related)[0] AS 关联实体类型, related.name AS 关联实体, properties(r) AS 关系属性",
+    "parameters": ["entity_name"],
+    "result_format": "list"
+  },
+  "路径查询": {
+    "description": "查询实体间的最短路径",
+    "cypher": "MATCH (start {name: $start_name}), (end {name: $end_name}), p = shortestPath((start)-[*..5]-(end)) RETURN p",
+    "parameters": ["start_name", "end_name"],
+    "result_format": "list"
+  },
+  "相似疾病查询": {
+    "description": "查询有相似症状的疾病",
+    "cypher": "MATCH (d1:疾病 {name: $disease_name})-[:has_symptom]->(s:症状)<-[:has_symptom]-(d2:疾病) WHERE d1 <> d2 RETURN d2.name AS 相似疾病, collect(s.name) AS 共同症状, count(s) AS 共同症状数量 ORDER BY count(s) DESC LIMIT 10",
+    "parameters": ["disease_name"],
+    "result_format": "list"
+  },
+  "疾病网络": {
+    "description": "查询疾病的相关网络",
+    "cypher": "MATCH (d:疾病 {name: $entity_name}) OPTIONAL MATCH (d)-[:has_symptom]->(s:症状) OPTIONAL MATCH (d)-[:recommand_drug]->(drug:药品) OPTIONAL MATCH (d)-[:acompany_with]->(comp:疾病) OPTIONAL MATCH (d)-[:not_eat]->(avoid:食物) OPTIONAL MATCH (d)-[:do_eat]->(good:食物) RETURN d.name AS 疾病, collect(DISTINCT s.name) AS 症状, collect(DISTINCT drug.name) AS 推荐药品, collect(DISTINCT comp.name) AS 并发症, collect(DISTINCT avoid.name) AS 忌食, collect(DISTINCT good.name) AS 宜食",
+    "parameters": ["entity_name"],
+    "result_format": "single"
+  },
+  "知识图谱概况": {
+    "description": "查询知识图谱整体概况",
+    "cypher": "CALL db.labels() YIELD label CALL { WITH label MATCH (n) WHERE label IN labels(n) RETURN count(n) AS count } RETURN label, count ORDER BY label",
+    "parameters": [],
+    "result_format": "list"
+  }
+}

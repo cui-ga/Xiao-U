@@ -1,0 +1,12 @@
+{
+  "neo4j_config": {
+    "uri": "bolt://127.0.0.1:7687",
+    "user": "neo4j",
+    "password": "12345678",
+    "database": "neo4j"
+  },
+  "query_config": {
+    "timeout": 10,
+    "max_results": 10
+  }
+}
