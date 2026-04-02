@@ -9,10 +9,9 @@ import time
 from pathlib import Path
 import json
 
-# ========== 关键配置：设置国内镜像源，解决下载问题 ==========
+
 os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
 
-# 添加当前目录到Python路径，确保能导入config
 current_dir = Path(__file__).parent
 sys.path.append(str(current_dir))
 
@@ -51,7 +50,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# ========== 1. 数据集定义 ==========
 class MedicalIntentDataset(Dataset):
     """医疗意图识别数据集"""
 
@@ -68,7 +66,6 @@ class MedicalIntentDataset(Dataset):
         text = str(self.texts[idx])
         label = self.labels[idx]
 
-        # 对文本进行编码
         encoding = self.tokenizer(
             text,
             truncation=True,
@@ -84,22 +81,18 @@ class MedicalIntentDataset(Dataset):
         }
 
 
-# ========== 2. 数据加载与预处理 ==========
 def load_and_preprocess_data(data_path):
     """加载和预处理数据"""
     logger.info(f"正在加载数据: {data_path}")
 
     try:
-        # 读取数据
         df = pd.read_csv(data_path)
 
-        # 检查必要列
         required_cols = ['text', 'label_class', 'label']
         for col in required_cols:
             if col not in df.columns:
                 raise ValueError(f"CSV文件缺少必要列: {col}")
 
-        # 标准化标签类别名称
         def standardize_label(label):
             if not isinstance(label, str):
                 return "其他"
@@ -112,18 +105,15 @@ def load_and_preprocess_data(data_path):
 
         df['label_class_clean'] = df['label_class'].apply(standardize_label)
 
-        # 使用标准标签映射
         df['label_id'] = df['label_class_clean'].apply(
             lambda x: LABEL_MAPPING["label2id"].get(x, LABEL_MAPPING["label2id"]["其他"])
         )
 
-        # 验证标签一致性
         mismatch_count = (df['label'] != df['label_id']).sum()
         if mismatch_count > 0:
             logger.warning(f"发现 {mismatch_count} 条数据标签不一致，使用标准映射修正")
             df['label'] = df['label_id']
 
-        # 统计类别分布
         logger.info("数据加载完成，类别分布:")
         dist = df['label_class_clean'].value_counts()
         for label, count in dist.items():
@@ -137,7 +127,6 @@ def load_and_preprocess_data(data_path):
         raise
 
 
-# ========== 3. 模型训练器 ==========
 class IntentClassifierTrainer:
     """意图分类训练器"""
 
@@ -146,7 +135,6 @@ class IntentClassifierTrainer:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.info(f"使用设备: {self.device}")
 
-        # 初始化模型和分词器
         self.tokenizer = AutoTokenizer.from_pretrained(self.config["model_name"])
         self.model = AutoModelForSequenceClassification.from_pretrained(
             self.config["model_name"],
@@ -154,7 +142,6 @@ class IntentClassifierTrainer:
         )
         self.model.to(self.device)
 
-        # 训练历史记录
         self.history = {
             'epoch': [],
             'train_loss': [], 'train_acc': [],
@@ -167,8 +154,6 @@ class IntentClassifierTrainer:
         """创建数据加载器"""
         if batch_size is None:
             batch_size = self.config["batch_size"]
-
-        # 分割数据集
         train_texts, val_texts, train_labels, val_labels = train_test_split(
             texts, labels,
             test_size=self.config["validation_split"],
@@ -176,7 +161,6 @@ class IntentClassifierTrainer:
             stratify=labels
         )
 
-        # 创建数据集
         train_dataset = MedicalIntentDataset(
             train_texts, train_labels, self.tokenizer, self.config["max_length"]
         )
@@ -184,7 +168,6 @@ class IntentClassifierTrainer:
             val_texts, val_labels, self.tokenizer, self.config["max_length"]
         )
 
-        # 创建数据加载器
         train_loader = DataLoader(
             train_dataset, batch_size=batch_size, shuffle=True, num_workers=0
         )
@@ -207,12 +190,10 @@ class IntentClassifierTrainer:
         progress_bar = tqdm(train_loader, desc=f"Epoch {epoch + 1}/{self.config['epochs']}")
 
         for batch in progress_bar:
-            # 移到设备
             input_ids = batch['input_ids'].to(self.device)
             attention_mask = batch['attention_mask'].to(self.device)
             labels = batch['labels'].to(self.device)
 
-            # 前向传播
             outputs = self.model(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
@@ -221,20 +202,17 @@ class IntentClassifierTrainer:
             loss = outputs.loss
             logits = outputs.logits
 
-            # 反向传播
             optimizer.zero_grad()
             loss.backward()
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
             optimizer.step()
             scheduler.step()
 
-            # 统计
             total_loss += loss.item()
             preds = torch.argmax(logits, dim=1).cpu().numpy()
             all_preds.extend(preds)
             all_labels.extend(labels.cpu().numpy())
 
-            # 更新进度条
             progress_bar.set_postfix({'loss': loss.item()})
 
         avg_loss = total_loss / len(train_loader)
@@ -270,7 +248,6 @@ class IntentClassifierTrainer:
         accuracy = accuracy_score(all_labels, all_preds)
         f1 = f1_score(all_labels, all_preds, average='weighted')
 
-        # 生成分类报告
         report = classification_report(
             all_labels, all_preds,
             target_names=[LABEL_MAPPING["id2label"][str(i)] for i in range(self.config["num_labels"])],
@@ -288,7 +265,6 @@ class IntentClassifierTrainer:
 
     def train(self, train_loader, val_loader):
         """完整训练流程"""
-        # 优化器和调度器
         optimizer = optim.AdamW(
             self.model.parameters(),
             lr=self.config["learning_rate"],
@@ -312,15 +288,12 @@ class IntentClassifierTrainer:
         for epoch in range(self.config["epochs"]):
             epoch_start = time.time()
 
-            # 训练
             train_loss, train_acc = self.train_epoch(train_loader, optimizer, scheduler, epoch)
 
-            # 评估
             eval_results = self.evaluate(val_loader)
 
             epoch_time = time.time() - epoch_start
 
-            # 记录历史
             self.history['epoch'].append(epoch + 1)
             self.history['train_loss'].append(train_loss)
             self.history['train_acc'].append(train_acc)
@@ -328,20 +301,17 @@ class IntentClassifierTrainer:
             self.history['val_acc'].append(eval_results['accuracy'])
             self.history['val_f1'].append(eval_results['f1'])
 
-            # 打印结果
             logger.info(f"\nEpoch {epoch + 1}/{self.config['epochs']} (耗时: {epoch_time:.1f}s)")
             logger.info(f"训练损失: {train_loss:.4f}, 训练准确率: {train_acc:.4f}")
             logger.info(f"验证损失: {eval_results['loss']:.4f}, 验证准确率: {eval_results['accuracy']:.4f}")
             logger.info(f"验证F1分数: {eval_results['f1']:.4f}")
-
-            # 保存最佳模型
+            
             if eval_results['f1'] > self.best_f1:
                 self.best_f1 = eval_results['f1']
                 self.best_epoch = epoch + 1
                 self.save_model()
                 logger.info(f"✅ 保存最佳模型 (F1: {self.best_f1:.4f})")
 
-        # 训练完成
         logger.info("\n" + "=" * 60)
         logger.info("训练完成!")
         logger.info(f"最佳模型在 Epoch {self.best_epoch}, F1分数: {self.best_f1:.4f}")
@@ -352,14 +322,11 @@ class IntentClassifierTrainer:
 
     def save_model(self):
         """保存模型和配置"""
-        # 确保目录存在
         BEST_MODEL_PATH.mkdir(exist_ok=True, parents=True)
 
-        # 保存模型
         self.model.save_pretrained(BEST_MODEL_PATH)
         self.tokenizer.save_pretrained(BEST_MODEL_PATH)
 
-        # 保存完整配置
         full_config = {
             "model_config": self.config,
             "label_mapping": LABEL_MAPPING,
@@ -375,7 +342,6 @@ class IntentClassifierTrainer:
         logger.info(f"模型配置已保存: {config_path}")
 
 
-# ========== 4. 主函数 ==========
 def main():
     """主训练流程"""
     logger.info("=" * 60)
@@ -383,25 +349,19 @@ def main():
     logger.info("=" * 60)
 
     try:
-        # 1. 加载数据
         texts, labels = load_and_preprocess_data(TRAIN_DATA_PATH)
 
-        # 2. 初始化训练器
         trainer = IntentClassifierTrainer()
 
-        # 3. 创建数据加载器
         train_loader, val_loader = trainer.create_dataloaders(texts, labels)
 
-        # 4. 训练模型
         best_f1 = trainer.train(train_loader, val_loader)
 
-        # 5. 最终评估
         logger.info("\n最终模型在验证集上的表现:")
         final_eval = trainer.evaluate(val_loader)
         logger.info(f"准确率: {final_eval['accuracy']:.4f}")
         logger.info(f"F1分数: {final_eval['f1']:.4f}")
 
-        # 打印各类别表现
         logger.info("\n各类别性能 (从验证集分类报告):")
         logger.info(final_eval['report'])
 
