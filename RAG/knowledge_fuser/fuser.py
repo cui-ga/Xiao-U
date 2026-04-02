@@ -66,7 +66,7 @@ class KnowledgeFuser:
             return "未检索到相关医学文献。"
 
         contexts = []
-        for i, result in enumerate(rag_results[:3], 1):  # 取前3个
+        for i, result in enumerate(rag_results[:2], 1):  
             content = result.get('content', '')
             # 截断过长的内容
             if len(content) > 500:
@@ -84,7 +84,7 @@ class KnowledgeFuser:
                 return True
 
         # 如果RAG结果质量高，数量多，则以RAG为主
-        if rag_results and len(rag_results) >= 3:
+        if rag_results and len(rag_results) >= 2:
             return False
 
         return True  # 默认以知识图谱为主
