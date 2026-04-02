@@ -185,7 +185,7 @@ with gr.Blocks(title=f"医疗助手 - {ASSISTANT_NAME}", fill_height=True) as de
 # 启动应用
 if __name__ == "__main__":
     print("=" * 50)
-    print(f"🏥 医疗助手 - {ASSISTANT_NAME} (布局优化版)")
+    print(f"🏥 医疗助手 - {ASSISTANT_NAME} ")
     print("=" * 50)
     print("🚀 系统启动中...")
 
