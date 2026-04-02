@@ -10,8 +10,9 @@
 </p>
 
   小U，你身边贴心的智能医疗健康顾问。基于医疗知识图谱、自然语言处理与检索增强生成（RAG）技术，精准读懂你的健康问询，输出专业、规范、易懂的医疗健康信息参考。
-
-<img width="60%" height="50%" margin="20px auto" alt="撰写GitHub项目README(1)" src="https://github.com/user-attachments/assets/6f92476a-bba9-4c1e-b6c8-313b652f77e1" />
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/6f92476a-bba9-4c1e-b6c8-313b652f77e1" alt="屏幕截图" width="45%">
+</div>
 
 
 ## 一、项目背景
@@ -87,7 +88,7 @@
 
 ## 七、项目结构
 
-<img width="743" height="465" alt="image" src="https://github.com/user-attachments/assets/9643f8df-93cd-426e-aa41-90ebe5eed438" />
+<img width="400" height="322" alt="image" src="https://github.com/user-attachments/assets/9643f8df-93cd-426e-aa41-90ebe5eed438" />
 
 
 ## ⚠️八、重要声明与免责条款 
