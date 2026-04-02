@@ -11,7 +11,6 @@ import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import json
 
-# 设置日志
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
@@ -35,23 +34,19 @@ class MedicalIntentPredictor:
         self.model_path = Path(model_path)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        # 加载模型
         self.load_model()
 
         logger.info(f"医疗意图预测器初始化完成，使用设备: {self.device}")
 
-    # 修改 load_model 方法
     def load_model(self):
         """加载模型和配置"""
         try:
             logger.info(f"正在加载模型: {self.model_path}")
 
-            # 加载配置
             config_path = self.model_path / "config.json"
             with open(config_path, 'r', encoding='utf-8') as f:
                 self.config = json.load(f)
 
-            # 修复：处理 label_mapping 键不存在的情况
             if "label_mapping" in self.config:
                 self.label_mapping = self.config["label_mapping"]
             else:
