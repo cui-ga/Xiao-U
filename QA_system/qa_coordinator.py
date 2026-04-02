@@ -382,7 +382,7 @@ class MedicalQAIntegratedSystem:
                 "log_level": "INFO"
             },
             "answer_logic": {
-                "kg_min_length": 25,  # KG答案最小长度阈值
+                "kg_min_length": 25,  
                 "enable_fallback": True
             }
         }
@@ -569,7 +569,7 @@ class MedicalQAIntegratedSystem:
                 answer = self.rag_generator.generate(prompt, context, max_tokens=1024)
                 generation_time = time.time() - start_time
 
-                if answer and len(answer.strip()) > 30:  # 降低长度阈值
+                if answer and len(answer.strip()) > 6:  
                     logger.info(f"✅ DeepSeek生成成功，长度: {len(answer)}，耗时: {generation_time:.2f}秒")
                     return answer.strip()
                 else:
@@ -781,7 +781,7 @@ class MedicalQAIntegratedSystem:
         for pattern in deepseek_patterns:
             formatted = re.sub(pattern, '', formatted, flags=re.MULTILINE)
 
-        # 5. 处理重复内容 - 这是关键优化
+        # 5. 处理重复内容
         # 如果内容有明显的重复段落，只保留第一个出现的版本
         lines = formatted.split('\n')
         if len(lines) > 3:  # 只有当有多行时才进行去重
@@ -791,19 +791,17 @@ class MedicalQAIntegratedSystem:
 
             for line in lines:
                 line_strip = line.strip()
-                if not line_strip or len(line_strip) < 10:  # 跳过空行和短行
+                if not line_strip or len(line_strip) < 10:  
                     unique_lines.append(line)
                     continue
 
-                # 尝试提取句子的核心部分（移除数字、标点等）
-                core_sentence = re.sub(r'\d+', '', line_strip)  # 移除数字
-                core_sentence = re.sub(r'[^\w\u4e00-\u9fff]', '', core_sentence)  # 只保留中文和字母
+                core_sentence = re.sub(r'\d+', '', line_strip)  
+                core_sentence = re.sub(r'[^\w\u4e00-\u9fff]', '', core_sentence)  
 
                 if core_sentence and core_sentence not in seen_sentences:
                     seen_sentences.add(core_sentence)
                     unique_lines.append(line)
                 elif core_sentence and core_sentence in seen_sentences:
-                    # 这是重复内容，跳过
                     continue
                 else:
                     unique_lines.append(line)

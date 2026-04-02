@@ -5,17 +5,16 @@ import time
 import traceback
 import uuid
 
-# 将当前项目路径加入系统路径
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
 # 助手配置
 ASSISTANT_NAME = "小U"
-PRIMARY_COLOR = "#6c5ce7"  # 紫色
-SECONDARY_COLOR = "#a29bfe"  # 浅紫色
-BACKGROUND_COLOR = "#0a0a0a"  # 深黑色背景
-TEXT_COLOR = "#ffffff"  # 白色文字
-BORDER_COLOR = "#333333"  # 边框颜色
+PRIMARY_COLOR = "#6c5ce7"  
+SECONDARY_COLOR = "#a29bfe"  
+BACKGROUND_COLOR = "#0a0a0a"  
+TEXT_COLOR = "#ffffff"  
+BORDER_COLOR = "#333333"  
 
 # 全局医疗系统实例
 medical_system = None
@@ -65,36 +64,28 @@ with gr.Blocks(title=f"医疗助手 - {ASSISTANT_NAME}", fill_height=True) as de
     # 使用Gradio的State来存储会话ID
     session_id_state = gr.State(value=f"web_session_{int(time.time())}")
 
-    # 应用标题 - 修改了字体大小
     gr.HTML(f"""
-    <div style="
+    <div id="header-container" style="
         text-align: center; 
         padding: 20px; 
         background: {BACKGROUND_COLOR};
         border-bottom: 1px solid {BORDER_COLOR};
     ">
-        <h1 style="
-            margin: 0; 
-            font-size: 42px; 
-            font-weight: 700; 
-            color: {PRIMARY_COLOR}; 
-            letter-spacing: 1px;
-        ">{ASSISTANT_NAME}</h1>
         <p style="
-            margin: 5px 0 0 0; 
-            color: {SECONDARY_COLOR}; 
-            font-size: 20px;  <!-- 修改这里：16px -> 20px -->
-            font-weight: 400;
-        ">智能医疗健康助手---小U</p>
+            margin: 0; 
+            color: {PRIMARY_COLOR}; 
+            font-size: 36px; 
+            font-weight: 700; 
+            letter-spacing: 1px;
+        ">智能医疗健康助手 — 小U</p>
     </div>
     """)
 
-    # 聊天区域 - 添加初始欢迎消息
     chatbot = gr.Chatbot(
         label="",
         show_label=False,
         elem_id="chatbot-container",
-        value=[{"role": "assistant", "content": "您好！我是小U！有什么医疗问题可以找我！"}]  # 添加这里
+        value=[{"role": "assistant", "content": "您好！我是小U，您的智能医疗健康助手。有什么问题可以随时问我！"}]
     )
 
     # 输入区域
@@ -121,12 +112,11 @@ with gr.Blocks(title=f"医疗助手 - {ASSISTANT_NAME}", fill_height=True) as de
         new_session_btn = gr.Button("🔄 新对话", variant="secondary", size="sm")
         clear_btn = gr.Button("🗑️ 清空", variant="secondary", size="sm")
 
-    # 底部信息
     gr.HTML(f"""
-    <div style="
+    <div id="footer-container" style="
         text-align: center; 
         padding: 12px; 
-        color: #666; 
+        color: #888888;  <!-- 调整为更易读的浅灰色 -->
         font-size: 12px;
         background: {BACKGROUND_COLOR};
         border-top: 1px solid {BORDER_COLOR};
@@ -195,7 +185,7 @@ with gr.Blocks(title=f"医疗助手 - {ASSISTANT_NAME}", fill_height=True) as de
 # 启动应用
 if __name__ == "__main__":
     print("=" * 50)
-    print(f"🏥 医疗助手 - {ASSISTANT_NAME} (多轮对话修复版)")
+    print(f"🏥 医疗助手 - {ASSISTANT_NAME} (布局优化版)")
     print("=" * 50)
     print("🚀 系统启动中...")
 
@@ -212,7 +202,7 @@ if __name__ == "__main__":
     print("  3. 点击'新对话'按钮可以重置会话")
     print("=" * 50)
 
-    # 全屏CSS - 精确控制每个元素的高度
+    # 【修正2】全屏CSS - 使用ID选择器替代顺序选择器，提高健壮性
     custom_css = f"""
     /* 重置所有边距和填充，确保全屏 */
     * {{
@@ -240,8 +230,8 @@ if __name__ == "__main__":
         max-width: 100% !important;
     }}
 
-    /* 标题区域 - 固定高度 */
-    .gradio-container > div:first-child {{
+    /* 【关键修正】标题区域 - 通过ID精确选择，不再依赖DOM顺序 */
+    #header-container {{
         flex: 0 0 auto !important;
         min-height: 80px !important;
         max-height: 80px !important;
@@ -380,8 +370,8 @@ if __name__ == "__main__":
         background: #444;
     }}
 
-    /* 底部区域 - 固定高度 */
-    .gradio-container > div:last-child {{
+    /* 【关键修正】底部区域 - 通过ID精确选择 */
+    #footer-container {{
         flex: 0 0 auto !important;
         min-height: 50px !important;
         max-height: 50px !important;
@@ -390,17 +380,13 @@ if __name__ == "__main__":
     /* 响应式调整 - 小屏幕优化 */
     @media (max-width: 768px) {{
         /* 标题区域缩小 */
-        .gradio-container > div:first-child {{
+        #header-container {{
             min-height: 60px !important;
             max-height: 60px !important;
         }}
 
-        .gradio-container > div:first-child h1 {{
-            font-size: 32px !important;
-        }}
-
-        .gradio-container > div:first-child p {{
-            font-size: 14px !important;
+        #header-container p {{
+            font-size: 28px !important;
         }}
 
         /* 控制区域调整 */
@@ -428,26 +414,26 @@ if __name__ == "__main__":
         }}
 
         /* 底部区域缩小 */
-        .gradio-container > div:last-child {{
+        #footer-container {{
             min-height: 40px !important;
             max-height: 40px !important;
+        }}
+
+        #footer-container p {{
+            font-size: 11px !important;
         }}
     }}
 
     /* 超小屏幕（手机）优化 */
     @media (max-height: 600px) {{
         /* 标题区域进一步缩小 */
-        .gradio-container > div:first-child {{
+        #header-container {{
             min-height: 50px !important;
             max-height: 50px !important;
         }}
 
-        .gradio-container > div:first-child h1 {{
-            font-size: 28px !important;
-        }}
-
-        .gradio-container > div:first-child p {{
-            font-size: 12px !important;
+        #header-container p {{
+            font-size: 24px !important;
         }}
 
         /* 聊天区域减少内边距 */
@@ -458,6 +444,16 @@ if __name__ == "__main__":
         .user-message, .bot-message {{
             padding: 10px 14px !important;
             margin-bottom: 8px !important;
+        }}
+
+        /* 底部区域进一步缩小 */
+        #footer-container {{
+            min-height: 35px !important;
+            max-height: 35px !important;
+        }}
+
+        #footer-container p {{
+            font-size: 10px !important;
         }}
     }}
     """
