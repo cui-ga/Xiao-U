@@ -174,8 +174,8 @@ class QueryResultFormatter:
             }
 
         # 截取前200个字符
-        cause_preview = cause[:200] + "..." if len(cause) > 200 else cause
-        answer = f"{disease_name}的病因：{cause_preview}"
+        # cause_preview = cause[:200] + "..." if len(cause) > 200 else cause
+        answer = f"{disease_name}的病因：{cause}"
 
         return {
             "answer": answer,
@@ -201,8 +201,8 @@ class QueryResultFormatter:
             }
 
         # 截取前200个字符
-        prevent_preview = prevent[:200] + "..." if len(prevent) > 200 else prevent
-        answer = f"{disease_name}的预防措施：{prevent_preview}"
+        # prevent_preview = prevent[:200] + "..." if len(prevent) > 200 else prevent
+        answer = f"{disease_name}的预防措施：{prevent}"
 
         return {
             "answer": answer,
@@ -260,8 +260,8 @@ class QueryResultFormatter:
             }
 
         # 截取前300个字符
-        desc_preview = description[:300] + "..." if len(description) > 300 else description
-        answer = f"{disease_name}：{desc_preview}"
+        # desc_preview = description[:300] + "..." if len(description) > 300 else description
+        answer = f"{disease_name}：{description}"
 
         return {
             "answer": answer,
@@ -291,37 +291,56 @@ class QueryResultFormatter:
 
     @staticmethod
     def format_taboo_result(result: Dict[str, Any]) -> Dict[str, Any]:
-        """格式化禁忌查询结果 - 智能推理版"""
+        """格式化禁忌查询结果 - 直接禁忌字段 + 文本注意事项补充"""
         if not result:
             return {"answer": "未找到该疾病的禁忌信息"}
 
         disease_name = result.get('disease_name', '未知疾病')
 
-        # 从多个字段中提取可能的禁忌信息
-        taboo_keywords = ['禁忌', '避免', '不要', '不宜', '禁止', '忌', '慎用']
-
-        # 检查各个字段中是否包含禁忌相关关键词
         taboo_info = []
 
-        # 从预防措施中找
+        # 1. 优先读取知识图谱直接返回的禁忌/忌食字段
+        direct_taboo_foods = (
+                result.get("taboo_foods")
+                or result.get("forbidden_foods")
+                or result.get("not_eat")
+                or result.get("忌食食物")
+                or result.get("禁忌")
+                or []
+        )
+
+        if direct_taboo_foods:
+            if isinstance(direct_taboo_foods, list):
+                foods = [str(item) for item in direct_taboo_foods if item]
+            else:
+                foods = [str(direct_taboo_foods)]
+
+            if foods:
+                taboo_info.append(f"忌食或不建议食用：{', '.join(foods[:10])}")
+                if len(foods) > 10:
+                    taboo_info[-1] += f"等{len(foods)}项"
+
+        # 2. 再从预防措施、治疗方法、疾病描述中补充禁忌/注意事项
+        taboo_keywords = ['禁忌', '避免', '不要', '不宜', '禁止', '忌', '慎用']
+
         prevent = result.get('prevent', '')
         if prevent and any(keyword in prevent for keyword in taboo_keywords):
             taboo_info.append(f"预防措施提示：{prevent[:100]}...")
 
-        # 从治疗方法中找
         treatments = result.get('treatments', [])
         if treatments and isinstance(treatments, list):
-            treatment_str = '，'.join(treatments)
+            treatment_str = '，'.join([str(t) for t in treatments if t])
             if any(keyword in treatment_str for keyword in taboo_keywords):
                 taboo_info.append(f"治疗方法注意事项：{treatment_str}")
 
-        # 从描述中找
         description = result.get('description', '')
         if description and any(keyword in description for keyword in taboo_keywords):
             taboo_info.append(f"疾病描述提示：{description[:100]}...")
 
         if taboo_info:
-            answer = f"{disease_name}的相关禁忌和注意事项：\n" + "\n".join([f"- {info}" for info in taboo_info])
+            answer = f"{disease_name}的相关禁忌和注意事项：\n" + "\n".join(
+                [f"- {info}" for info in taboo_info]
+            )
         else:
             answer = f"{disease_name}的禁忌信息暂时没有记录"
 
@@ -365,9 +384,111 @@ class QueryResultFormatter:
             }
         }
 
+
+    @staticmethod
+    def normalize_result_keys(result: Dict[str, Any]) -> Dict[str, Any]:
+        """字段适配层：将Cypher查询返回的中文字段名统一转换为格式化器使用的英文字段名"""
+        if not result or not isinstance(result, dict):
+            return result
+
+        key_map = {
+            "疾病名称": "disease_name",
+            "疾病": "disease_name",
+            "名称": "disease_name",
+            "症状": "symptoms",
+            "症状列表": "symptoms",
+            "治疗科室": "departments",
+            "科室": "departments",
+            "治疗方法": "treatments",
+            "疾病描述": "description",
+            "描述": "description",
+            "传染性": "infectious",
+            "治愈率": "cure_rate",
+            "治疗周期": "cure_time",
+            "治疗时间": "cure_time",
+            "病因": "cause",
+            "预防措施": "prevent",
+            "预防": "prevent",
+            "相关检查": "checks",
+            "检查项目": "checks",
+            "并发症": "related_diseases",
+            "相关疾病": "related_diseases",
+            "忌食食物": "taboo_foods",
+            "忌食": "taboo_foods",
+            "宜食食物": "recommended_foods",
+            "宜食": "recommended_foods",
+            "推荐药品": "recommended_drugs",
+            "药品名称": "drug_name",
+            "生产厂家": "manufacturer",
+            "食物名称": "food_name",
+            "菜谱名称": "recipe_name",
+            "科室名称": "department_name",
+            "药企名称": "company_name",
+            "症状名称": "symptom_name",
+            "实体类型": "entity_type",
+            "属性": "properties",
+        }
+
+        normalized = dict(result)
+
+        for old_key, new_key in key_map.items():
+            if old_key in result:
+                old_value = result.get(old_key)
+                if new_key not in normalized or normalized.get(new_key) in (None, "", []):
+                    normalized[new_key] = old_value
+
+        # 适配检查结果：format_check_result 期望 checks 为 [{"name": "检查名"}] 结构
+        if "checks" in normalized:
+            checks = normalized.get("checks")
+            if isinstance(checks, list):
+                normalized["checks"] = [
+                    item if isinstance(item, dict) else {"name": item}
+                    for item in checks
+                    if item
+                ]
+            elif checks:
+                normalized["checks"] = [{"name": checks}]
+            else:
+                normalized["checks"] = []
+            normalized.setdefault("check_count", len(normalized["checks"]))
+
+        # 适配相关疾病结果：format_related_disease_result 期望 related_diseases 为 [{"name": "疾病名"}] 结构
+        if "related_diseases" in normalized:
+            related_diseases = normalized.get("related_diseases")
+            if isinstance(related_diseases, list):
+                normalized["related_diseases"] = [
+                    item if isinstance(item, dict) else {"name": item}
+                    for item in related_diseases
+                    if item
+                ]
+            elif related_diseases:
+                normalized["related_diseases"] = [{"name": related_diseases}]
+            else:
+                normalized["related_diseases"] = []
+            normalized.setdefault("related_count", len(normalized["related_diseases"]))
+
+        # 适配禁忌结果：如果查询模板返回的是“忌食食物”，则转成 format_taboo_result 能识别的 prevent 提示
+        taboo_foods = normalized.get("taboo_foods")
+        if taboo_foods:
+            if isinstance(taboo_foods, list):
+                taboo_text = "、".join(str(item) for item in taboo_foods if item)
+            else:
+                taboo_text = str(taboo_foods)
+
+            if taboo_text:
+                taboo_hint = f"忌食食物：{taboo_text}"
+                if normalized.get("prevent"):
+                    normalized["prevent"] = f"{normalized['prevent']}；{taboo_hint}"
+                else:
+                    normalized["prevent"] = taboo_hint
+
+        return normalized
+
     @staticmethod
     def format_by_intent(intent: str, result: Dict[str, Any]) -> Dict[str, Any]:
         """根据意图格式化结果"""
+        result = QueryResultFormatter.normalize_result_keys(result)
+
         formatter_map = {
             "临床表现(病症表现)": QueryResultFormatter.format_symptom_result,
             "所属科室": QueryResultFormatter.format_department_result,
