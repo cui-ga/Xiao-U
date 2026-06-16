@@ -5,16 +5,17 @@ import time
 import traceback
 import uuid
 
+# 将当前项目路径加入系统路径
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
 # 助手配置
 ASSISTANT_NAME = "小U"
-PRIMARY_COLOR = "#6c5ce7"  
-SECONDARY_COLOR = "#a29bfe"  
-BACKGROUND_COLOR = "#0a0a0a"  
-TEXT_COLOR = "#ffffff"  
-BORDER_COLOR = "#333333"  
+PRIMARY_COLOR = "#6c5ce7"  # 紫色
+SECONDARY_COLOR = "#a29bfe"  # 浅紫色
+BACKGROUND_COLOR = "#0a0a0a"  # 深黑色背景
+TEXT_COLOR = "#ffffff"  # 白色文字
+BORDER_COLOR = "#333333"  # 边框颜色
 
 # 全局医疗系统实例
 medical_system = None
@@ -81,11 +82,16 @@ with gr.Blocks(title=f"医疗助手 - {ASSISTANT_NAME}", fill_height=True) as de
     </div>
     """)
 
+    # 聊天区域 - 优化初始欢迎消息
     chatbot = gr.Chatbot(
         label="",
         show_label=False,
         elem_id="chatbot-container",
-        value=[{"role": "assistant", "content": "您好！我是小U，您的智能医疗健康助手。有什么问题可以随时问我！"}]
+        type="messages",
+        allow_tags=False,
+        value=[
+            {"role": "assistant", "content": "您好！我是小U，您的智能医疗健康助手。有什么问题可以随时问我！"}
+        ]
     )
 
     # 输入区域
@@ -202,7 +208,6 @@ if __name__ == "__main__":
     print("  3. 点击'新对话'按钮可以重置会话")
     print("=" * 50)
 
-    # 【修正2】全屏CSS - 使用ID选择器替代顺序选择器，提高健壮性
     custom_css = f"""
     /* 重置所有边距和填充，确保全屏 */
     * {{
