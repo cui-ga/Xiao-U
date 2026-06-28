@@ -66,7 +66,7 @@ class KnowledgeFuser:
             return "未检索到相关医学文献。"
 
         contexts = []
-        for i, result in enumerate(rag_results[:2], 1):  
+        for i, result in enumerate(rag_results[:2], 1):  # 取前2个
             content = result.get('content', '')
             # 截断过长的内容
             if len(content) > 500:
@@ -94,7 +94,9 @@ class KnowledgeFuser:
         return {
             'primary_source': 'kg',
             'context': f"{kg_context}\n\n{rag_context}",
-            'has_kg_info': True,
+            'kg_context': kg_context,
+            'rag_context': rag_context,
+            'has_kg_info': bool(kg_context and "未找到" not in kg_context),
             'has_rag_info': bool(rag_context and "未检索" not in rag_context)
         }
 
@@ -103,6 +105,8 @@ class KnowledgeFuser:
         return {
             'primary_source': 'rag',
             'context': f"{rag_context}\n\n{kg_context}",
+            'kg_context': kg_context,
+            'rag_context': rag_context,
             'has_kg_info': bool(kg_context and "未找到" not in kg_context),
-            'has_rag_info': True
+            'has_rag_info': bool(rag_context and "未检索" not in rag_context)
         }
