@@ -25,7 +25,7 @@ class DocumentProcessor:
 
     def process_documents(self, documents: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
-        处理文档列表：清洗、分块、标准化
+        处理文档列表：先验证，再清洗、分块、标准化
 
         Args:
             documents: 原始文档列表
@@ -33,14 +33,19 @@ class DocumentProcessor:
         Returns:
             处理后的文档列表
         """
+        # 0. 先验证文档格式，过滤掉缺少 id/content 或内容过短的文档
+        validated_documents = self.validate_documents(documents)
+
         processed_docs = []
 
-        for i, doc in enumerate(documents):
+        for i, doc in enumerate(validated_documents):
             try:
                 # 1. 清洗内容
                 cleaned_content = self._clean_text(doc.get('content', ''))
+
+                # 二次检查：清洗后如果内容太短，也跳过
                 if not cleaned_content or len(cleaned_content) < 20:
-                    logger.debug(f"文档 {i} 内容过短，跳过: {doc.get('id', 'unknown')}")
+                    logger.debug(f"文档 {i} 清洗后内容过短，跳过: {doc.get('id', 'unknown')}")
                     continue
 
                 # 2. 分块（如果内容过长）
@@ -68,7 +73,12 @@ class DocumentProcessor:
                 logger.error(f"处理文档 {i} 失败: {e}")
                 continue
 
-        logger.info(f"文档处理完成: {len(documents)} -> {len(processed_docs)} 个处理后的文档块")
+        logger.info(
+            f"文档处理完成: 原始 {len(documents)} 个 -> "
+            f"验证后 {len(validated_documents)} 个 -> "
+            f"处理后 {len(processed_docs)} 个文档块"
+        )
+
         return processed_docs
 
     def _clean_text(self, text: str) -> str:
