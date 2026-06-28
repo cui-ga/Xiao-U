@@ -51,6 +51,7 @@ class DialogueState:
     """对话状态（一个完整的会话）"""
     session_id: str
     created_at: datetime = field(default_factory=datetime.now)
+    #会议活跃过期时间
     last_activity: datetime = field(default_factory=datetime.now)
 
     # 对话历史
