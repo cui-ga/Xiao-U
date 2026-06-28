@@ -63,7 +63,7 @@ class DialogueContextBuilder:
 
                 if entity_name:
                     # 根据指代词类型构建完整查询
-                    if placeholder in ['它', '这病', '其']:
+                    if placeholder in ['它', '这病', '其','他','她','那']:
                         # 提取意图关键词
                         intent_keyword = ''
                         for intent_word in ['症状', '治疗', '病因', '预防', '科室', '检查', '禁忌', '并发症', '吃什么',
