@@ -31,7 +31,7 @@ class DialogueHistoryManager:
         self.session_timeout = config.get('session_timeout_seconds', 1800)
 
         # 清理过期会话的线程
-        self.cleanup_interval = 300  # 每5分钟清理一次
+        self.cleanup_interval = 300  # 每5分钟检查清理一次
         self.cleanup_thread = threading.Thread(target=self._cleanup_expired_sessions, daemon=True)
         self.cleanup_thread.start()
 
