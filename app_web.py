@@ -60,155 +60,7 @@ def get_medical_response(message, session_id):
         return f"⚠️ 系统处理出错，请稍后再试。", session_id
 
 
-# 创建Gradio界面
-with gr.Blocks(title=f"医疗助手 - {ASSISTANT_NAME}", fill_height=True) as demo:
-    # 使用Gradio的State来存储会话ID
-    session_id_state = gr.State(value=f"web_session_{int(time.time())}")
-
-    gr.HTML(f"""
-    <div id="header-container" style="
-        text-align: center; 
-        padding: 20px; 
-        background: {BACKGROUND_COLOR};
-        border-bottom: 1px solid {BORDER_COLOR};
-    ">
-        <p style="
-            margin: 0; 
-            color: {PRIMARY_COLOR}; 
-            font-size: 36px; 
-            font-weight: 700; 
-            letter-spacing: 1px;
-        ">智能医疗健康助手 — 小U</p>
-    </div>
-    """)
-
-    # 聊天区域 - 优化初始欢迎消息
-    chatbot = gr.Chatbot(
-        label="",
-        show_label=False,
-        elem_id="chatbot-container",
-        type="messages",
-        allow_tags=False,
-        value=[
-            {"role": "assistant", "content": "您好！我是小U，您的智能医疗健康助手。有什么问题可以随时问我！"}
-        ]
-    )
-
-    # 输入区域
-    with gr.Row(elem_id="input-row"):
-        with gr.Column(scale=8):
-            with gr.Row():
-                msg = gr.Textbox(
-                    label="",
-                    placeholder="尽管问... 例如：糖尿病有什么症状？",
-                    scale=4,
-                    container=False,
-                    autofocus=True,
-                    elem_id="input-box"
-                )
-                submit_btn = gr.Button(
-                    "发送",
-                    variant="primary",
-                    scale=1,
-                    elem_id="submit-btn"
-                )
-
-    # 控制按钮
-    with gr.Row(elem_id="control-row"):
-        new_session_btn = gr.Button("🔄 新对话", variant="secondary", size="sm")
-        clear_btn = gr.Button("🗑️ 清空", variant="secondary", size="sm")
-
-    gr.HTML(f"""
-    <div id="footer-container" style="
-        text-align: center; 
-        padding: 12px; 
-        color: #888888;  <!-- 调整为更易读的浅灰色 -->
-        font-size: 12px;
-        background: {BACKGROUND_COLOR};
-        border-top: 1px solid {BORDER_COLOR};
-    ">
-        <p style="margin: 0;">© 2026 医疗助手 {ASSISTANT_NAME} | 本系统提供医疗信息参考，不能替代专业医生诊断</p>
-    </div>
-    """)
-
-
-    # 事件处理
-    def respond(message, chat_history, session_id):
-        """处理用户消息，保持会话ID"""
-        if not message.strip():
-            return "", chat_history, session_id
-
-        # 获取医疗回复，使用相同的session_id
-        bot_response, session_id = get_medical_response(message, session_id)
-
-        # 使用字典格式
-        new_messages = chat_history + [
-            {"role": "user", "content": message},
-            {"role": "assistant", "content": bot_response}
-        ]
-
-        return "", new_messages, session_id
-
-
-    def start_new_session(chat_history, current_session_id):
-        """开始新会话，生成新的session_id"""
-        new_session_id = f"web_session_{int(time.time())}"
-        print(f"🔄 开始新会话: {new_session_id}")
-        return [], new_session_id
-
-
-    def clear_chat(chat_history, session_id):
-        """清空聊天记录，但保持会话ID"""
-        print(f"🗑️ 清空会话 {session_id} 的聊天记录")
-        return [], session_id
-
-
-    # 连接事件
-    msg.submit(
-        respond,
-        [msg, chatbot, session_id_state],
-        [msg, chatbot, session_id_state]
-    )
-
-    submit_btn.click(
-        respond,
-        [msg, chatbot, session_id_state],
-        [msg, chatbot, session_id_state]
-    )
-
-    new_session_btn.click(
-        start_new_session,
-        [chatbot, session_id_state],
-        [chatbot, session_id_state]
-    )
-
-    clear_btn.click(
-        clear_chat,
-        [chatbot, session_id_state],
-        [chatbot, session_id_state]
-    )
-
-# 启动应用
-if __name__ == "__main__":
-    print("=" * 50)
-    print(f"🏥 医疗助手 - {ASSISTANT_NAME} ")
-    print("=" * 50)
-    print("🚀 系统启动中...")
-
-    if initialize_medical_system():
-        print("✅ 医疗系统准备就绪")
-    else:
-        print("⚠️ 医疗系统初始化失败，界面仍可运行")
-
-    print(f"🌐 本地访问: http://localhost:7860")
-    print("=" * 50)
-    print("💡 多轮对话测试:")
-    print("  1. 问: 糖尿病有什么症状？")
-    print("  2. 问: 那怎么治疗？ (应该能理解'那'指糖尿病)")
-    print("  3. 点击'新对话'按钮可以重置会话")
-    print("=" * 50)
-
-    custom_css = f"""
+custom_css = f"""
     /* 重置所有边距和填充，确保全屏 */
     * {{
         margin: 0;
@@ -463,13 +315,163 @@ if __name__ == "__main__":
     }}
     """
 
+
+# 创建Gradio界面
+with gr.Blocks(title=f"医疗助手 - {ASSISTANT_NAME}", fill_height=True, css=custom_css) as demo:
+    # 使用Gradio的State来存储会话ID
+    session_id_state = gr.State(value=f"web_session_{int(time.time())}")
+
+    gr.HTML(f"""
+    <div id="header-container" style="
+        text-align: center; 
+        padding: 20px; 
+        background: {BACKGROUND_COLOR};
+        border-bottom: 1px solid {BORDER_COLOR};
+    ">
+        <p style="
+            margin: 0; 
+            color: {PRIMARY_COLOR}; 
+            font-size: 36px; 
+            font-weight: 700; 
+            letter-spacing: 1px;
+        ">智能医疗健康助手 — 小U</p>
+    </div>
+    """)
+
+    # 聊天区域 - 优化初始欢迎消息
+    chatbot = gr.Chatbot(
+        label="",
+        show_label=False,
+        elem_id="chatbot-container",
+        type="messages",
+        allow_tags=False,
+        value=[
+            {"role": "assistant", "content": "您好！我是小U，您的智能医疗健康助手。有什么问题可以随时问我！"}
+        ]
+    )
+
+    # 输入区域
+    with gr.Row(elem_id="input-row"):
+        with gr.Column(scale=8):
+            with gr.Row():
+                msg = gr.Textbox(
+                    label="",
+                    placeholder="尽管问... 例如：糖尿病有什么症状？",
+                    scale=4,
+                    container=False,
+                    autofocus=True,
+                    elem_id="input-box"
+                )
+                submit_btn = gr.Button(
+                    "发送",
+                    variant="primary",
+                    scale=1,
+                    elem_id="submit-btn"
+                )
+
+    # 控制按钮
+    with gr.Row(elem_id="control-row"):
+        new_session_btn = gr.Button("🔄 新对话", variant="secondary", size="sm")
+        clear_btn = gr.Button("🗑️ 清空", variant="secondary", size="sm")
+
+    gr.HTML(f"""
+    <div id="footer-container" style="
+        text-align: center; 
+        padding: 12px; 
+        color: #888888;  <!-- 调整为更易读的浅灰色 -->
+        font-size: 12px;
+        background: {BACKGROUND_COLOR};
+        border-top: 1px solid {BORDER_COLOR};
+    ">
+        <p style="margin: 0;">© 2026 医疗助手 {ASSISTANT_NAME} | 本系统提供医疗信息参考，不能替代专业医生诊断</p>
+    </div>
+    """)
+
+
+    # 事件处理
+    def respond(message, chat_history, session_id):
+        """处理用户消息，保持会话ID"""
+        if not message.strip():
+            return "", chat_history, session_id
+
+        # 获取医疗回复，使用相同的session_id
+        bot_response, session_id = get_medical_response(message, session_id)
+
+        # 使用字典格式
+        new_messages = chat_history + [
+            {"role": "user", "content": message},
+            {"role": "assistant", "content": bot_response}
+        ]
+
+        return "", new_messages, session_id
+
+
+    def start_new_session(chat_history, current_session_id):
+        """开始新会话，生成新的session_id"""
+        new_session_id = f"web_session_{int(time.time())}"
+        print(f"🔄 开始新会话: {new_session_id}")
+        return [], new_session_id
+
+
+    def clear_chat(chat_history, session_id):
+        """清空聊天记录，但保持会话ID"""
+        print(f"🗑️ 清空会话 {session_id} 的聊天记录")
+        return [], session_id
+
+
+    # 连接事件
+    msg.submit(
+        respond,
+        [msg, chatbot, session_id_state],
+        [msg, chatbot, session_id_state]
+    )
+
+    submit_btn.click(
+        respond,
+        [msg, chatbot, session_id_state],
+        [msg, chatbot, session_id_state]
+    )
+
+    new_session_btn.click(
+        start_new_session,
+        [chatbot, session_id_state],
+        [chatbot, session_id_state]
+    )
+
+    clear_btn.click(
+        clear_chat,
+        [chatbot, session_id_state],
+        [chatbot, session_id_state]
+    )
+
+# 启动应用
+if __name__ == "__main__":
+    print("=" * 50)
+    print(f"🏥 医疗助手 - {ASSISTANT_NAME} ")
+    print("=" * 50)
+    print("🚀 系统启动中...")
+
+    if initialize_medical_system():
+        print("✅ 医疗系统准备就绪")
+    else:
+        print("⚠️ 医疗系统初始化失败，界面仍可运行")
+
+    print(f"🌐 本地访问: http://localhost:7860")
+    print("=" * 50)
+    print("💡 多轮对话测试:")
+    print("  1. 问: 糖尿病有什么症状？")
+    print("  2. 问: 那怎么治疗？ (应该能理解'那'指糖尿病)")
+    print("  3. 点击'新对话'按钮可以重置会话")
+    print("=" * 50)
+
+
+
     try:
         demo.launch(
             server_name="0.0.0.0",
             server_port=7860,
             share=False,
-            show_error=True,
-            css=custom_css
+            show_error=True
         )
     except OSError as e:
         if "Address already in use" in str(e):
@@ -478,8 +480,7 @@ if __name__ == "__main__":
                 server_name="0.0.0.0",
                 server_port=7861,
                 share=False,
-                show_error=True,
-                css=custom_css
+                show_error=True
             )
         else:
             raise
