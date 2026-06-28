@@ -74,7 +74,6 @@ class DialogueManager:
         else:
             coref_entities = []
 
-        # 保存原始查询（指代消解前）
         processed_query = user_query
 
         return processed_query, dialogue_state
